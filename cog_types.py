@@ -31,10 +31,10 @@ example, a `Right_Cog' might have low strength for coordinates on the far right 
 `Cog.instantiate_strengths(cog_array)'. 
 """
 class Cog:
-    def __init__(self, build_rate, flaggy_rate, exp_rate):
+    def __init__(self, build_rate, flaggy_rate, exp_mult):
         self.build_rate = build_rate
         self.flaggy_rate = flaggy_rate
-        self.exp_rate = exp_rate
+        self.exp_mult = exp_mult
         self.strengths = None
         self.strength_start_value = None
         self.average_obj = None
@@ -45,7 +45,7 @@ class Cog:
              ("Type:               %s\n" % self.__class__.__name__) +
             (("Build rate:         %d\n" % self.build_rate) if self.build_rate > 0 else "") +
             (("Flaggy rate:        %d\n" % self.flaggy_rate) if self.flaggy_rate > 0 else "") +
-            (("Exp rate:           %d%%\n" % (self.exp_rate*100)) if self.exp_rate > 0 else "")
+            (("Exp mult:           %d%%\n" % (self.exp_mult * 100)) if self.exp_mult > 0 else "")
         ).strip()
 
     """
@@ -119,22 +119,23 @@ class Cog:
 
 
 class Character(Cog):
-    def __init__(self, build_rate, flaggy_rate, exp_gain, name = "hahahaha"):
+    def __init__(self, build_rate, flaggy_rate, exp_rate, name ="hahahaha"):
         super().__init__(build_rate,flaggy_rate,0.0)
-        self.exp_gain = exp_gain
+        self.exp_rate = exp_rate
         self.name = name
     def get_abbr(self):
         return "C"
     def __str__(self):
         return (
             super().__str__() + "\n" +
-            ("Name:               %s\n" % self.name)
+            ("Name:               %s\n" % self.name) +
+            ("Exp rate:           %d\n" % self.exp_rate)
         ).strip()
 
 
 class Boost_Cog(Cog):
-    def __init__(self, build_rate, flaggy_rate, exp_rate, build_rate_boost, flaggy_rate_boost, flaggy_speed_boost, exp_boost):
-        super().__init__(build_rate, flaggy_rate, exp_rate)
+    def __init__(self, build_rate, flaggy_rate, exp_mult, build_rate_boost, flaggy_rate_boost, flaggy_speed_boost, exp_boost):
+        super().__init__(build_rate, flaggy_rate, exp_mult)
         self.build_rate_boost = build_rate_boost
         self.flaggy_rate_boost = flaggy_rate_boost
         self.flaggy_speed_boost = flaggy_speed_boost

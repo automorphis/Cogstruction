@@ -158,7 +158,7 @@ class Iteration_Controller:
         print("Best so far:                          %.4f" % (self.best[1]))
         print("Build rate:                           %d" % self.best[0].get_build_rate())
         print("Flaggy rate:                          %d" % self.best[0].get_flaggy_rate())
-        print("Exp rate:                             %d%%" % (100*self.best[0].get_exp_rate()))
+        print("Exp mult:                             %d%%" % (100 * self.best[0].get_total_exp_mult()))
 
     def print_init_info(self):
         print("NUM RESTARTS:   %d" % self.num_restarts)

@@ -73,7 +73,7 @@ class Cog_Array:
         self.empties_set = empties_set if empties_set is not None else Empties_Set(set())
         self.flaggies = set(flaggies) if flaggies is not None else set()
         self.spares = []
-        self.build_rate = self.flaggy_rate = self.exp_rate = None
+        self.build_rate = self.flaggy_rate = self.total_exp_mult = None
         self.excludes_dict = excludes_dict if excludes_dict is not None else {}
 
     """
@@ -304,7 +304,7 @@ class Cog_Array:
         return coords in self.flaggies
 
     def _reset_rates(self):
-        self.build_rate = self.flaggy_rate = self.exp_rate = None
+        self.build_rate = self.flaggy_rate = self.total_exp_mult = None
 
     """
     Calculate the total build rate of the array.
@@ -358,9 +358,9 @@ class Cog_Array:
     - Due to a bug in Lava's implementation, the ''player exp'' adjacency bonuses give a multiplicative bonus to adjacent
     flaggy speeds.
     """
-    def get_exp_rate(self):
-        if self.exp_rate is None:
-            self.exp_rate = sum((cog.exp_rate if self.is_occupied(coords) else 0.0) for coords,cog in self)
+    def get_total_exp_mult(self):
+        if self.total_exp_mult is None:
+            self.total_exp_mult = sum((cog.exp_mult if self.is_occupied(coords) else 0.0) for coords, cog in self)
         # if self.exp_rate is None:
         #     total_rate = sum((cog.exp_rate if self.is_occupied(coords) else 0.0) for coords,cog in self)
         #     total_bonus = 0.0
@@ -373,14 +373,14 @@ class Cog_Array:
         #                     if isinstance(cog, Character):
         #                         total_bonus += cog.exp_gain * bonus
         #     self.exp_rate = total_rate + total_bonus
-        return self.exp_rate
+        return self.total_exp_mult
 
     """
     - A convex combination (i.e. weighted average) of the build, flaggy, and exp rates. 
     - ''obj_fnx'' is an abbreviation of ''objective function''.
     """
     def standard_obj_fxn(self,build_weight,flaggy_weight,exp_weight):
-        return self.get_build_rate()*build_weight + self.get_flaggy_rate()*flaggy_weight + self.get_exp_rate()*exp_weight
+        return self.get_build_rate() * build_weight + self.get_flaggy_rate() * flaggy_weight + self.get_total_exp_mult() * exp_weight
 
 """
 Iterates through all the non-empty coordinates of an input `Cog_Array'.

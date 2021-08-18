@@ -31,9 +31,11 @@ def read_cog_datas(filename):
                 int(row["flaggy_rate"]) if len(row["flaggy_rate"])>0 else 0
             )
             if row["cog type"] != "Character":
-                args += (float(row["exp_rate"]) if len(row["exp_rate"])>0 else 0.0,)
+                args += (float(row["exp_mult"]) if len(row["exp_mult"])>0 else 0.0,)
             else:
-                args += (row["name"],)
+                args += (int(row["exp_rate"]) if len(row["exp_rate"])>0 else 0,)
+                if len(row["name"]) > 0:
+                    args += (row["name"],)
             if row["cog type"] in ["Yang_Cog", "X_Cog", "Plus_Cog", "Left_Cog", "Right_Cog", "Up_Cog", "Down_Cog", "Row_Cog", "Col_Cog"]:
                 args += (
                     float(row["build_rate_boost"]) if len(row["build_rate_boost"])>0 else 0.0,
