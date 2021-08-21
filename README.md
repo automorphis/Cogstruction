@@ -11,12 +11,15 @@ There are two options.
 1. [Follow these instructions](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) for downloading Python, setting up a virtual environment, activating it, and installing packages. 
 2. This project uses only one package that does not come with a standard Python installation, namely Numpy. After you have set up a virtual environment and activated it, install Numpy by opening a terminal and typing `pip install numpy`.
 3. Open the `cog_datas.csv` file using Excel or a similar program and read the data carefully. The data that is currently there should serve as an example of how to fill it out with your own cogs.
-4. Delete all the rows of `cog_datas.csv` except for the first one. Fill out the rest of the rows with your own cogs. **Remember to remove cogs from your cog array to see their raw numbers; the numbers you see while they are currently in the cog array have adjacency bonuses already applied.** If you do not do this, the algorithm will give you a suboptimal array.
+4. Delete all the rows of `cog_datas.csv` except for the first one. Fill out the rest of the rows with your own cogs, including spare cogs on your cog shelf. **Remember to remove cogs from your cog array to see their raw numbers; the numbers you see while they are currently in the cog array have adjacency bonuses already applied.** If you do not do this, the algorithm will give you a suboptimal array.
 5. Open the `empties_datas.csv` file suing Excel or a similar program. Look at the data. If the row reads `0, 0`, then that means the lower-left coordinate in the array. If it reads `11, 7`, then that means the upper-right corner. These are the places you have **not** yet unlocked using flaggies.
 6. Delete all the rows of `empties_datas.csv` except for the first one. Fill it out with all the places you have not yet unlocked using flaggies. **Remember that these coordinates are zero-indexed; there should be no `x` values more than 11 nor `y` values more than 7.**
 7. Using a terminal, navigate to the project directory (using `cd`) and type `python main.py`.
 8. Sit back and relax for about 5-15 min, depending on your machine.
 9. After the algorithm terminates, put the cogs where it tells you to.
+
+# Known issues
+1. You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.
 
 # How it works
 
