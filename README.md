@@ -20,7 +20,7 @@ There are two options.
 
 # How it works
 
-A genetic algorithm is based off the principle of natural selection.
+A genetic algorithm is based off the principle of natural selection. The algorithm works as follows.
 
 1. Randomly instatiate a large population of cog arrays, say 1000. 
 2. Randomly pick a cog array *A* from the population. We are going to produce a new cog array from *A* and add it to the population. 
