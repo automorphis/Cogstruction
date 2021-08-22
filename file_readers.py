@@ -36,7 +36,7 @@ def read_cog_datas(filename):
                 args += (int(row["exp_rate"]) if len(row["exp_rate"])>0 else 0,)
                 if len(row["name"]) > 0:
                     args += (row["name"],)
-            if row["cog type"] in ["Yang_Cog", "X_Cog", "Plus_Cog", "Left_Cog", "Right_Cog", "Up_Cog", "Down_Cog", "Row_Cog", "Col_Cog"]:
+            if row["cog type"] in ["Yang_Cog", "X_Cog", "Plus_Cog", "Left_Cog", "Right_Cog", "Up_Cog", "Down_Cog", "Row_Cog", "Col_Cog", "Omni_Cog"]:
                 args += (
                     float(row["build_rate_boost"]) if len(row["build_rate_boost"])>0 else 0.0,
                     float(row["flaggy_rate_boost"]) if len(row["flaggy_rate_boost"])>0 else 0.0,

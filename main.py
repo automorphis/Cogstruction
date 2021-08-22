@@ -42,6 +42,7 @@ if __name__ == "__main__":
     cog_datas_filename = "cog_datas.csv"
     empties_datas_filename = "empties_datas.csv"
     flaggies_datas_filename = "flaggies_datas.csv"
+    output_filename = "output.txt"
 
     A = np.array([
         [1.,1.,1.],
@@ -73,4 +74,6 @@ if __name__ == "__main__":
         controller
     )
 
-    print(str(best[0]))
+    print("Writing best cog array to %s" % output_filename)
+    with open(output_filename, "w") as fh:
+        fh.write(str(best[0]))
