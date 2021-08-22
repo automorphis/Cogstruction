@@ -16,6 +16,7 @@ Cogstruction: Optimizing cog arrays in Legends of Idleon
 import csv
 import math
 
+from constants import NUM_COGS_HORI, NUM_COGS_VERT
 from coords import Coords
 
 EPS = 10**-5
@@ -72,6 +73,10 @@ def read_empties_datas(filename):
         for i, row in enumerate(csv.DictReader(fh)):
             _check_for_Cog_Data_File_Error("empties_x", "int", row, i, filename)
             _check_for_Cog_Data_File_Error("empties_y", "int", row, i, filename)
+            if not (0<=int(row["empties_x"])< NUM_COGS_HORI):
+                raise Cog_Data_File_Error(i, "empties_x", filename, "oob")
+            if not (0<=int(row["empties_y"]) < NUM_COGS_VERT):
+                raise Cog_Data_File_Error(i,"empties_y", filename, "oob")
             empties_datas.append(Coords(int(row["empties_x"]), int(row["empties_y"])))
     return set(empties_datas)
 
@@ -102,13 +107,17 @@ def _check_for_Cog_Data_File_Error(key, should_be, row, row_num, filename):
 
 
 class Cog_Data_File_Error(RuntimeError):
-    def __init__(self, row_num, col_label, filename, should_be):
+    def __init__(self, row_num, col_label, filename, enum):
         msg = "Error in `%s` on row %d, column `%s`. " % (filename, row_num, col_label)
-        if should_be == "int":
+        if enum == "int":
             msg += "Entry should be a positive integer or zero."
-        elif should_be == "float":
+        elif enum == "float":
             msg += "Entry should be a positive real number or zero."
-        elif should_be == "cog":
+        elif enum == "cog":
             msg += "Available cog types are: Cog, Character, Yang_Cog, Plus_Cog, X_Cog, Up_Cog, Down_Cog, Left_Cog, Right_Cog, Col_Cog, Row_Cog, and Omni_Cog"
+        elif enum == "oob":
+            msg += "`empties_x` must be between 0 and %d and `empties_y` must be between 0 and %d." % (NUM_COGS_HORI-1, NUM_COGS_VERT-1)
+        else:
+            msg += enum
         super().__init__(msg)
 
