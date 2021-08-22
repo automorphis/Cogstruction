@@ -18,9 +18,16 @@ There are two options.
 8. Sit back and relax for about 5-15 min, depending on your machine.
 9. After the algorithm terminates, open `output.txt` and put the cogs where it tells you to.
 
-# Known issues
+# To do
+### Bugs
 1. You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.
 2. The algorithm may not place all your characters in the cog array. This is very unlikely, but technically possible. I am going to force the algorithm to always include all your characters.
+
+### Improvements
+1. Implement the excogia cog.
+2. Implement adjacent player boosts for flaggy speeds.
+3. Create a browser extension for automatic loading of Cog data using [Corbeno's API](https://github.com/Corbeno/Idleon-Api-Downloader).
+4. Create a handsome output using cog sprites.
 
 # How it works
 
