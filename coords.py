@@ -35,6 +35,9 @@ class Coords:
     def __str__(self):
         return "(%d, %d)" % (self.x, self.y)
 
+    def __repr__(self):
+        return "Coords(%d, %d)" % (self.x,self.y)
+
     def __add__(self, other):
         return Coords(self.x + other.x, self.y + other.y)
 

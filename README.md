@@ -16,7 +16,7 @@ There are two options.
 6. Delete all the rows of `empties_datas.csv` except for the first one. Fill it out with all the places you have not yet unlocked using flaggies. **Remember that these coordinates are zero-indexed; there should be no `x` values more than 11 nor `y` values more than 7.**
 7. Using a terminal, navigate to the project directory (using `cd`) and type `python main.py`.
 8. Sit back and relax for about 5-15 min, depending on your machine.
-9. After the algorithm terminates, put the cogs where it tells you to.
+9. After the algorithm terminates, open `output.txt` and put the cogs where it tells you to.
 
 # Known issues
 1. You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.
