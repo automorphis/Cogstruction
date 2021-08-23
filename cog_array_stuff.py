@@ -36,8 +36,16 @@ class Empties_Set:
                 if coords not in self.empties:
                     self.coords_list.append(coords)
 
+    def __eq__(self, other):
+        return self.empties == other.empties
+    def __ne__(self, other):
+        return not(self == other)
+
     def __contains__(self, coords):
         return coords in self.empties
+
+    def __len__(self):
+        return len(self.empties)
 
 """
 - `excludes_dict[type(cog)]' is a `set' of all coordinates where `cog' should not be placed.
@@ -72,9 +80,10 @@ class Cog_Array:
         self.array = np.empty((NUM_COGS_HORI, NUM_COGS_VERT), dtype=np.dtype(object))
         self.empties_set = empties_set if empties_set is not None else Empties_Set(set())
         self.flaggies = set(flaggies) if flaggies is not None else set()
-        self.spares = []
+        self.spares = set()
         self.build_rate = self.flaggy_rate = self.total_exp_mult = None
         self.excludes_dict = excludes_dict if excludes_dict is not None else {}
+        self._num_occupied = 0
 
     """
     - Randomly places cogs on the cog array. Any leftover cogs are added to `self.spares'.
@@ -83,17 +92,24 @@ class Cog_Array:
     always return.
     """
     def instantiate_randomly(self,cogs):
+        if self.get_num_spares() != 0 or self.get_num_occupied() != 0:
+            raise RuntimeError("Cog_Array must be empty before instatiating.")
         self.extend_spares(cogs)
         for coords in Coords_Iter(self,True):
-            self.move_random_cog_from_spares(coords)
+            if self.get_num_spares() > 0:
+                self.move_random_cog_from_spares(coords)
+            else:
+                return self
         return self
 
     """
     Mostly used for copying.
     """
     def instantiate_from_array(self,array):
+        if self.get_num_spares() != 0 or self.get_num_occupied() != 0:
+            raise RuntimeError("Cog_Array must be empty before instatiating.")
         self.array = array
-        cogs = [cog for _,cog in self]
+        self._num_occupied = sum((self.array[i,j] is not None) for i,j in np.ndindex((NUM_COGS_HORI,NUM_COGS_VERT)))
         return self
 
     """
@@ -112,7 +128,9 @@ class Cog_Array:
     """
     def __setitem__(self, coords, cog):
         if coords.is_out_of_bounds() or coords in self.empties_set:
-            raise Exception
+            raise RuntimeError("invalid coords")
+        if not self.is_occupied(coords):
+            self._num_occupied += 1
         self.array[coords.x, coords.y] = cog
         self._reset_rates()
 
@@ -161,6 +179,17 @@ class Cog_Array:
         cog_array.extend_spares(copy.copy(self.spares))
         return cog_array
 
+    def __eq__(self, other):
+        if self.empties_set != other.empties_set or self.spares != other.spares or self.flaggies != other.flaggies:
+            return False
+        for coords,cog in self:
+            if cog != other[coords]:
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not(self==other)
+
     "Call it and see =)"
     def str_with_abbr(self):
         ret = ""
@@ -191,9 +220,14 @@ class Cog_Array:
     """
     Only returns non-empty coords.
     """
-    def get_random_coords(self):
-        for coords in Coords_Iter(self,True,1):
-            return coords
+    def get_random_coords(self,k=1):
+        ret = []
+        for coords in Coords_Iter(self,True,k):
+            ret.append(coords)
+        if k == 1:
+            return ret[0]
+        else:
+            return ret
 
     """
     - This method blends two input `Cog_Arrays'. The blended `Cog_Array' is called `child'. 
@@ -235,6 +269,8 @@ class Cog_Array:
     - First, randomly choose a cog placed in `self'. Then, choose a random cog from `self.spares'. Switch these two.
     """
     def one_point_mutation(self):
+        if self.get_num_spares() == 0:
+            raise Cog_Not_Found_Error
         child = copy.copy(self)
         coords = self.get_random_coords()
         old_cog = child[coords]
@@ -244,13 +280,26 @@ class Cog_Array:
         return child,coords,old_cog
 
     """
+    - Switch two cogs that are currently placed in the array.
+    - This method ignores the cog shelf, `self.spares`.
+    """
+    def two_point_mutation(self):
+        child = copy.copy(self)
+        coords1,coords2 = child.get_random_coords(2)
+        cog1 = child[coords1]
+        child[coords1] = child[coords2]
+        child[coords2] = cog1
+        return child, coords1, coords2
+
+
+    """
     - Move `cog' from `self.spares' to `coords'.
     - If `coords' is already occupied by a different cog, then move that cog to `self.spares' before replacing with `cog'.
     - This method ignores the return value of `self.excludes(coords, cog)'.
     """
     def move_cog_from_spares(self, coords, cog):
         if cog not in self.spares:
-            raise Exception
+            raise Cog_Not_Found_Error
         self.spares.remove(cog)
         self.move_cog_to_spares(coords)
         self[coords] = cog
@@ -265,6 +314,8 @@ class Cog_Array:
     possible. 
     """
     def move_random_cog_from_spares(self,coords):
+        if self.get_num_spares() == 0:
+            raise Cog_Not_Found_Error
         attempts = 0
         while attempts < len(self.spares):
             cog = random.sample(self.spares, 1)[0]
@@ -281,6 +332,7 @@ class Cog_Array:
             self.add_spare(self[coords])
             self.array[coords.x,coords.y] = None
             self._reset_rates()
+            self._num_occupied -= 1
         return self
 
     def move_all_to_spares(self):
@@ -289,7 +341,7 @@ class Cog_Array:
         return self
 
     def add_spare(self,cog):
-        self.spares.append(cog)
+        self.spares.add(cog)
         return self
 
     def extend_spares(self,cogs):
@@ -382,6 +434,22 @@ class Cog_Array:
     def standard_obj_fxn(self,build_weight,flaggy_weight,exp_weight):
         return self.get_build_rate() * build_weight + self.get_flaggy_rate() * flaggy_weight + self.get_total_exp_mult() * exp_weight
 
+    def get_num_spares(self):
+        return len(self.spares)
+
+    def get_num_non_empty(self):
+        return TOTAL_COORDS - len(self.empties_set)
+
+    """
+    Returns the total number of cogs in `self.spares` if every non-empty coords of `self` is occupied.
+    """
+    def get_num_extras(self):
+        return self.get_num_spares() - self.get_num_non_empty() + self.get_num_occupied()
+
+    def get_num_occupied(self):
+        return self._num_occupied
+
+
 """
 Iterates through all the non-empty coordinates of an input `Cog_Array'.
 """
@@ -390,12 +458,13 @@ class Coords_Iter:
         self.cog_array = cog_array if cog_array is not None else Cog_Array()
         self.randomize_order = randomize_order
         self.curr_index = None
-        self.coords_list = self.cog_array.empties_set.coords_list[:length]
+        self.coords_list = self.cog_array.empties_set.coords_list
+        self.length = min(length,len(self.coords_list))
 
     def __iter__(self):
         self.curr_index = 0
         if self.randomize_order:
-            self.coords_list = random.sample(self.coords_list, len(self.coords_list))
+            self.coords_list = random.sample(self.coords_list, self.length)
         return self
 
     def __next__(self):
@@ -404,3 +473,6 @@ class Coords_Iter:
         next_coords = self.coords_list[self.curr_index]
         self.curr_index += 1
         return next_coords
+
+class Cog_Not_Found_Error(RuntimeError):
+    pass

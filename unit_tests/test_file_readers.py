@@ -11,7 +11,8 @@ class Test_File_Readers(unittest.TestCase):
             "cog_datas_static1.csv",
             "cog_datas_static2.csv",
             "cog_datas_static3.csv",
-            "cog_datas_static4.csv"
+            "cog_datas_static4.csv",
+            "cog_datas_static5.csv"
         ]
 
         self.cog_datas_with_errors_static_filenames = [
@@ -25,6 +26,7 @@ class Test_File_Readers(unittest.TestCase):
             "empties_datas_static1.csv",
             "empties_datas_static2.csv",
             "empties_datas_static3.csv",
+            "empties_datas_static4.csv",
             "empties_datas_static4.csv"
         ]
 
@@ -207,14 +209,14 @@ class Test_File_Readers(unittest.TestCase):
 
     def test_read_cog_datas(self):
         for filename, data in zip(self.cog_datas_static_filenames, self.cog_datas_static):
-            self.assertEquals(read_cog_datas(filename), data)
+            self.assertEqual(read_cog_datas(filename), data)
         for filename in self.cog_datas_with_errors_static_filenames:
             with self.assertRaises(Cog_Data_File_Error):
                 read_cog_datas(filename)
 
     def test_read_empties_datas(self):
         for filename, data in zip(self.empties_datas_static_filenames, self.empties_datas_static):
-            self.assertEquals(read_empties_datas(filename), data)
+            self.assertEqual(read_empties_datas(filename), data)
         for filename in self.empties_datas_with_errors_static_filenames:
-            with self.assertRaises(Cog_Data_File_Error) as e:
+            with self.assertRaises(Cog_Data_File_Error):
                 read_empties_datas(filename)

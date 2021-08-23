@@ -16,6 +16,8 @@ Cogstruction: Optimizing cog arrays in Legends of Idleon
 import copy
 import random
 import numpy as np
+import pickle as pkl
+import time
 
 from cog_array_stuff import get_excludes_dict, Cog_Array
 from constants import ONE_SIG_PROB, EARLY_STOP_FACTOR
@@ -48,6 +50,8 @@ class Iteration_Controller:
         self.mutation_count = 0
 
         self.prob_cross_breed = None
+        self.prob_one_point_mutation = None
+        self.prob_two_point_mutation = None
         self.cross_breed_count = 0
 
     """
@@ -75,9 +79,14 @@ class Iteration_Controller:
     - `prob_cross_breed' is the probability of calling `Cog_Array.cross_breed'; likewise `1-prob_cross_breed' is the
     probability of calling `Cog_Array.one_point_mutation'.
     """
-    def set_mutation_info(self,num_mutations,prob_cross_breed):
+    def set_mutation_info(self, num_mutations):
         self.num_mutations = num_mutations
+        return self
+
+    def set_breeding_scheme_info(self, prob_cross_breed, prob_one_point_mutation, prob_two_point_mutation):
         self.prob_cross_breed = prob_cross_breed
+        self.prob_one_point_mutation = prob_one_point_mutation
+        self.prob_two_point_mutation = prob_two_point_mutation
         return self
 
     def set_pop(self,pop):
@@ -123,12 +132,14 @@ class Iteration_Controller:
         else:
             return False
 
-    def do_cross_breed(self):
-        if random.uniform(0,1) >= self.prob_cross_breed:
-            self.cross_breed_count+=1
-            return True
+    def breeding_scheme(self):
+        rand = random.uniform(0,1)
+        if rand >= 1-self.prob_cross_breed:
+            return "cross_breed"
+        elif rand >= 1-self.prob_cross_breed - self.prob_one_point_mutation:
+            return "one_point_mutation"
         else:
-            return False
+            return "two_point_mutation"
 
     def print_restart_status_open(self):
         print("Restart:                              %d" % (self.restart_count-1))
@@ -257,6 +268,8 @@ def learning_algo(
     excludes_dict = get_excludes_dict(empties_set,cogs)
     cog_array_template = Cog_Array(empties_set,None,excludes_dict).extend_spares(cogs)
 
+    can_do_one_point_mutation = cog_array_template.get_num_non_empty() < cog_array_template.get_num_spares()
+
     bests = []
     # with open("hello.pkl", "rb") as fh:
     #     cogs = pkl.load(fh)
@@ -281,24 +294,48 @@ def learning_algo(
 
         controller.set_pop(pop)
         controller.print_restart_status_open()
+
         while controller.generation_loop():
+
             controller.print_generation_status()
+
             while controller.mutation_loop():
-                if controller.do_cross_breed():
+
+                breeding_scheme = controller.breeding_scheme()
+                if breeding_scheme == "cross_breed":
                     (array1,_),(array2,_) = pop.sample(2)
                     pop.add(array1.cross_breed(array2))
-                else:
+
+                elif breeding_scheme == "two_point_mutation" or not can_do_one_point_mutation:
+                    old_array,old_obj = pop.sample(1)[0]
+                    new_array, coords1, coords2 = old_array.two_point_mutation()
+                    cog1 = old_array[coords1]
+                    cog2 = old_array[coords2]
+                    _, new_obj = pop.add(new_array)
+                    try:
+                        prop_new = new_obj / (old_obj + new_obj)
+                        factor = factor_base ** ((prop_new-1/2)*old_array.get_num_occupied())
+                        cog1.update_strength(coords2,factor,max_factor,max_multiplier)
+                        cog1.update_strength(coords1,1/factor,max_factor,max_multiplier)
+                        cog2.update_strength(coords1, factor, max_factor,max_multiplier)
+                        cog2.update_strength(coords2, 1/factor,max_factor,max_multiplier)
+                        pass
+                    except ZeroDivisionError:
+                        pass
+
+                elif breeding_scheme == "one_point_mutation":
                     old_array,old_obj = pop.sample(1)[0]
                     new_array,coords,old_cog = old_array.one_point_mutation()
                     new_cog = new_array[coords]
-                    _,new_obj = pop.add(new_array)
+                    _, new_obj = pop.add(new_array)
                     median_diff = average_std_objs[new_cog][0] - average_std_objs[old_cog][0]
-                    std_diff = np.sqrt(average_std_objs[new_cog][1]**2 + average_std_objs[old_cog][1]**2)
+                    std_diff = np.sqrt(average_std_objs[new_cog][1] ** 2 + average_std_objs[old_cog][1] ** 2)
                     try:
-                        z_score = (new_obj - old_obj- median_diff)/std_diff
-                        factor = factor_base**z_score
-                        old_cog.update_strength(coords, 1/factor, max_factor, max_multiplier)
-                        new_cog.update_strength(coords, factor)
+                        z_score = (new_obj - old_obj - median_diff) / std_diff
+                        factor = factor_base ** z_score
+                        old_cog.update_strength(coords, 1 / factor, max_factor, max_multiplier)
+                        new_cog.update_strength(coords, factor, max_factor, max_multiplier)
+                        pass
                         # if (
                         #         (
                         #         new_cog.__class__.__name__ == "Up_Cog" and
@@ -365,6 +402,8 @@ def learning_algo(
                     except ZeroDivisionError:
                         pass
 
+                else:
+                    raise RuntimeError("Breeding scheme must be among `cross_breed`, `one_point_mutation`, and `two_point_mutation`.")
             pop.cull()
         controller.print_restart_status_close()
 

@@ -30,6 +30,8 @@ if __name__ == "__main__":
     pop_size = 2000
     num_restarts = 1
     prob_cross_breed = 0.5
+    prob_one_point_mutation = 0.25
+    prob_two_point_mutation = 0.25
     num_mutations = 800
     factor_base = 2
     max_factor = 4
@@ -55,7 +57,8 @@ if __name__ == "__main__":
     controller = (Iteration_Controller()
         .set_restart_info(num_restarts)
         .set_generation_info(min_generations,max_generations,max_running_total_len,req_running_total)
-        .set_mutation_info(num_mutations,prob_cross_breed)
+        .set_mutation_info(num_mutations)
+        .set_breeding_scheme_info(prob_cross_breed,prob_one_point_mutation,prob_two_point_mutation)
     )
     cog_datas = read_cog_datas(cog_datas_filename)
     empties = read_empties_datas(empties_datas_filename)
