@@ -20,7 +20,7 @@ There are two options.
 
 # To do
 ### Bugs
-1. You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.
+1. ~~You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.~~
 2. The algorithm may not place all your characters in the cog array. This is very unlikely, but technically possible. I am going to force the algorithm to always include all your characters.
 
 ### Improvements
