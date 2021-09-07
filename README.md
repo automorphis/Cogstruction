@@ -19,6 +19,9 @@ There are two options.
 9. After the algorithm terminates, open `output.txt` and put the cogs where it tells you to.
 
 # To do
+
+I (Automorphis) am currently overwhelmed with work and will not be able to seriously contribute to this project. Please continue to report bugs and issues and I will get to them when I can.
+
 ### Bugs
 1. ~~You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.~~
 2. The algorithm may not place all your characters in the cog array. This is very unlikely, but technically possible. I am going to force the algorithm to always include all your characters.
