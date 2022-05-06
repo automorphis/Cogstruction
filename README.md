@@ -2,6 +2,8 @@
 
 "Cogstruction" is a genetic algorithm that produces high quality cog arrays for the construction skill in the game "Legends of Idleon".
 
+I have abandoned this project. I am not responding to questions or requests. Fork and share at your pleasure.
+
 # How to get
 There are two options.
 1. Using your terminal, navigate to a place where you want to put the code, and copy+paste the following in your terminal: `git clone https://github.com/automorphis/Cogstruction.git`.
@@ -19,8 +21,6 @@ There are two options.
 9. After the algorithm terminates, open `output.txt` and put the cogs where it tells you to.
 
 # To do
-
-I (Automorphis) am currently overwhelmed with work and will not be able to seriously contribute to this project. Please continue to report bugs and issues and I will get to them when I can.
 
 ### Bugs
 1. ~~You should have at least one more cog in `cog_datas.csv` than you have places to put them. If not, it will result in a bizarre Python error. This is a bug that I need to fix. This should not be a problem for almost all users, since most users have a non-empty cog shelf.~~
