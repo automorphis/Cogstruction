@@ -17,7 +17,7 @@ import copy
 import random
 import numpy as np
 
-from cog_types import Boost_Cog
+import cog_types
 from constants import NUM_COGS_HORI, NUM_COGS_VERT, TOTAL_COORDS
 from coords import Coords
 
@@ -57,8 +57,10 @@ def get_excludes_dict(empties_set, cogs):
     cog_array = Cog_Array(empties_set)
     excludes_dict = {}
     for cog in cogs:
-        if type(cog) not in excludes_dict and isinstance(cog, Boost_Cog):
+        if type(cog) not in excludes_dict and isinstance(cog, cog_types.Boost_Cog):
             excludes_dict[type(cog)] = set()
+            if(type(cog) is cog_types.Row_Cog or type(cog) is cog_types.Col_Cog):
+                continue
             for coords in Coords_Iter(cog_array):
                 num_oob_neighbors = sum((adj_coords.is_out_of_bounds()) for adj_coords in cog.get_influence(coords))
                 if num_oob_neighbors > cog.get_max_oob_neighbors():
