@@ -318,12 +318,12 @@ class Cog_Array:
             raise Cog_Not_Found_Error
         attempts = 0
         while attempts < len(self.spares):
-            cog = random.sample(self.spares, 1)[0]
+            cog = random.sample(list(self.spares), 1)[0]
             if not self.excludes(coords,cog):
                 break
             attempts += 1
         else:
-            cog = random.sample(self.spares, 1)[0]
+            cog = random.sample(list(self.spares),1)[0]
         self.move_cog_from_spares(coords,cog)
         return cog
 
