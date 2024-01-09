@@ -29,19 +29,20 @@ are the arguments passed to the class constructor.
 def read_cog_datas(filename):
     cog_datas = []
     with open(filename, "r", newline="") as fh:
-        for i,row in enumerate(csv.DictReader(fh)):
+        for i, row in enumerate(csv.DictReader(fh)):
             _check_for_Cog_Data_File_Error("build_rate", "int", row, i, filename)
             _check_for_Cog_Data_File_Error("flaggy_rate", "int", row, i, filename)
             args = (
-                int(row["build_rate"]) if len(row["build_rate"])>0 else 0,
-                int(row["flaggy_rate"]) if len(row["flaggy_rate"])>0 else 0
+                int(row["build_rate"]) if len(row["build_rate"]) > 0 else 0,
+                int(row["flaggy_rate"]) if len(row["flaggy_rate"]) > 0 else 0
             )
             if row["cog type"] != "Character":
                 _check_for_Cog_Data_File_Error("exp_mult", "float", row, i, filename)
-                args += (float(row["exp_mult"]) if len(row["exp_mult"])>0 else 0.0,)
+                args += (float(row["exp_mult"]) if len(row["exp_mult"]) > 0 else 0.0,)
             else:
-                _check_for_Cog_Data_File_Error("exp_rate", "int", row, i, filename)
-                args += (int(row["exp_rate"]) if len(row["exp_rate"])>0 else 0,)
+                # Change here: expect 'exp_rate' to be a float for Characters
+                _check_for_Cog_Data_File_Error("exp_rate", "float", row, i, filename)
+                args += (float(row["exp_rate"]) if len(row["exp_rate"]) > 0 else 0.0,)
                 if len(row["name"]) > 0:
                     args += (row["name"],)
             if row["cog type"].strip() in ["Yang_Cog", "X_Cog", "Plus_Cog", "Left_Cog", "Right_Cog", "Up_Cog", "Down_Cog", "Row_Cog", "Col_Cog", "Omni_Cog"]:
@@ -50,8 +51,8 @@ def read_cog_datas(filename):
                 _check_for_Cog_Data_File_Error("flaggy_speed", "float", row, i, filename)
                 _check_for_Cog_Data_File_Error("exp_rate_boost", "float", row, i, filename)
                 args += (
-                    float(row["build_rate_boost"]) if len(row["build_rate_boost"])>0 else 0.0,
-                    float(row["flaggy_rate_boost"]) if len(row["flaggy_rate_boost"])>0 else 0.0,
+                    float(row["build_rate_boost"]) if len(row["build_rate_boost"]) > 0 else 0.0,
+                    float(row["flaggy_rate_boost"]) if len(row["flaggy_rate_boost"]) > 0 else 0.0,
                     float(row["flaggy_speed"]) if len(row["flaggy_speed"]) > 0 else 0.0,
                     float(row["exp_rate_boost"]) if len(row["exp_rate_boost"]) > 0 else 0.0
                 )
@@ -103,7 +104,14 @@ def _check_for_Cog_Data_File_Error(key, should_be, row, row_num, filename):
             (should_be == "int" and not _is_non_neg_int(row[key]))
         )
     ):
+        # Print statements for debugging
+        print("Debug Info: Error found")
+        print("Row number:", row_num)
+        print("Row data:", row)
+
+        # Raise the error after printing
         raise Cog_Data_File_Error(row_num, key, filename, should_be)
+
 
 
 class Cog_Data_File_Error(RuntimeError):
